@@ -1,0 +1,53 @@
+# Makefile.include
+# This file is included in all other makefiles.
+
+# relies on:
+# TOP_DIR  the package root dir
+# PACKAGE_DIR The package dir path
+
+# set here the target dir for all classes
+#CLASS_DIR       =../../classes
+CLASS_DIR       =$(TOP_DIR)/classes
+
+# compiler field
+#JDEBUGFLAGS    = -g -deprecation
+#JDEBUGFLAGS    = -O -depend -nowarn
+JCC             = javac
+JAVA            = java
+
+# nothing should be changed below...
+#
+
+all: classes
+
+LOCAL_CLASS_DIR       =$(CLASS_DIR)/$(PACKAGE_DIR)
+
+# create target class dir if not present.
+$(LOCAL_CLASS_DIR):
+	mkdir -p $(LOCAL_CLASS_DIR)
+
+
+# new rule for java
+.SUFFIXES:
+.SUFFIXES: .java .class
+
+
+# magical command that tells make to find class files in another dir
+vpath %.class $(LOCAL_CLASS_DIR)
+
+
+# compile command
+.java.class:
+	CLASSPATH=$(CLASSPATH):$(CLASS_DIR):$(TOP_DIR) $(JCC) -nowarn -d $(CLASS_DIR) $(JDEBUGFLAGS) $<
+#	$(JAVA) com.officemax.util.OMXJar mf $< $(CLASS_DIR)
+
+
+# find out target files
+
+FILES = $(wildcard *.java)
+classes: $(FILES:.java=.class)
+
+
+clean:
+	@@ echo 'rm -f *~ *.class core *.bak $(LOCAL_CLASS_DIR)/*class $(LOCAL_CLASS_DIR)/META.INF'
+	@@rm -f *~ *.class core *.bak $(LOCAL_CLASS_DIR)/*class $(LOCAL_CLASS_DIR)/META.INF
